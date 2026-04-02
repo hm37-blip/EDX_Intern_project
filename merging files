@@ -1,0 +1,25 @@
+#Same steps for listing 
+import pandas as pd
+import glob
+import os
+
+folder_path = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx'
+output_file = os.path.join(folder_path, 'Final_Sold_Data_Consolidated.csv')
+
+file_pattern = os.path.join(folder_path, 'CRMLSSold*.csv')
+all_files = glob.glob(file_pattern)
+
+#begin the loop
+li = []
+
+for filename in all_files:
+    # index_col=None 
+    # low_memory=False 
+    df = pd.read_csv(filename, index_col=None, header=0, low_memory=False, encoding='latin1')
+    li.append(df)
+    
+frame = pd.concat(li, axis=0, ignore_index=True)
+
+frame.drop_duplicates(inplace=True)
+
+frame.to_csv(output_file, index=False, encoding='utf-8-sig')
