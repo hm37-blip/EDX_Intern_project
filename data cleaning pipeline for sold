@@ -1,0 +1,44 @@
+import pandas as pd
+import os
+
+folder_path = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx'
+input_file = os.path.join(folder_path, 'Final_Sold_Data_Consolidated.csv')
+output_file = os.path.join(folder_path, 'Clean_Sold_Data_v1.csv')
+  
+df = pd.read_csv(input_file, low_memory=False, encoding='latin1')
+initial_count = len(df)
+
+#only keep residential house 
+df = df[df['PropertyType'] == 'Residential'].copy()
+
+#change date to standard form 
+df['CloseDate'] = pd.to_datetime(df['CloseDate'], errors='coerce')
+df['SoldYear'] = df['CloseDate'].dt.year
+df['SoldMonth'] = df['CloseDate'].dt.month
+df['YrMo'] = df['CloseDate'].dt.strftime('%Y-%m')
+  
+#transfer string to number 
+cols_to_fix = ['ClosePrice', 'LivingArea', 'OriginalListPrice', 'DaysOnMarket']
+for col in cols_to_fix:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+
+# drop null value
+df.dropna(subset=['ClosePrice', 'LivingArea'], inplace=True)
+
+# Price per Sq Ft
+df['PricePerSqFt'] = df['ClosePrice'] / df['LivingArea']
+# (Sold-to-List Ratio
+df['SoldToListRatio'] = df['ClosePrice'] / df['OriginalListPrice']
+   
+# IQR Method to take out outliner on ClosePrice
+Q1 = df['ClosePrice'].quantile(0.25)
+Q3 = df['ClosePrice'].quantile(0.75)
+IQR = Q3 - Q1
+
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+df = df[(df['ClosePrice'] >= lower_bound) & (df['ClosePrice'] <= upper_bound)]
+
+#output
+df.to_csv(output_file, index=False, encoding='utf-8-sig')
