@@ -1,3 +1,4 @@
+#note： 数据转换+去除有缺失的+计算挂牌单价+剔除离群值
 import pandas as pd
 import os 
 
