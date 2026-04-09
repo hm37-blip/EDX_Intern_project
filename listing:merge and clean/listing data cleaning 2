@@ -1,4 +1,4 @@
-#note： 数据转换+去除有缺失的+计算挂牌单价+剔除离群值
+#note： data transformation+drop line with n/a +cal listing price + drop outliner
 import pandas as pd
 import os 
 
