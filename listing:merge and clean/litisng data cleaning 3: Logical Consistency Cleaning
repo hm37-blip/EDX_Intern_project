@@ -6,6 +6,9 @@ input_file = os.path.join(folder_path, 'Clean_Listing_Data_v1.csv)
 output_file = os.path.join(folder_path, 'Clean_Listing_Data_v2.csv')
 df = pd.read_csv(input_file, low_memory=False, encoding='latin1')
 
+#keep only residential
+df = df[df['PropertyType'] == 'Residential'].copy()
+
 #filter out extremely low price
 df['ClosePrice'] = pd.to_numeric(df['ClosePrice'], errors='coerce')
 df = df[df['ClosePrice'] >= 50000]
