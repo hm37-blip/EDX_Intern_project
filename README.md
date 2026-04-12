@@ -24,21 +24,69 @@ Sold Dataset: 492,876 total records.
 
 Listing Dataset: 756,095 total records.
 
-3. Critical Missing Data (100% Nulls)
+2. Critical Missing Data (100% Nulls)
    
 Through a full-missing value scan, we identified 5 fields that contain zero valid data across both datasets. These "Ghost Fields" have been earmarked for immediate removal to reduce memory overhead:
 Common 100% Missing Fields: **FireplacesTotal**, **AboveGradeFinishedArea**, **ElementarySchoolDistrict**, **MiddleOrJuniorSchoolDistrict**, **CoveredSpaces**.
 
-4. High-Value Field Integrity
+3. High-Value Field Integrity
    
 Conversely, we verified the integrity of core metrics required for market analysis. The following fields showed exceptionally high completion rates:
 
-ClosePrice: Only 4 rows missing in the Sold dataset (0.0008% missing rate), validating its use as a primary KPI.
+**ClosePrice**: Only 4 rows missing in the Sold dataset (0.0008% missing rate), validating its use as a primary KPI.
 
-LivingArea / PostalCode: Highly complete, ensuring accuracy for Price-per-SqFt and geographic trend analysis.
+**LivingArea** / **PostalCode**: Highly complete, ensuring accuracy for Price-per-SqFt and geographic trend analysis.
 
-5. Redundancy & Conflict Resolution
 
-We identified systematic redundancy in the API export (e.g., Latitude vs. Latitude.1).
+4. Redundancy & Conflict Resolution
+During the data auditing phase, we performed a comprehensive Column-to-Column Collision Test on the 84 source fields to address systematic mirroring issues arising from the API export process.
 
-Technical Decision: In the cleaning pipeline, we retain the original field and drop the .1 suffix mirrors to maintain a clean data schema.
+   a. Audit Discovery & Differential Analysis
+Using the Python .equals() algorithm for row-by-row validation, we identified a significant structural divergence between the two master tables:
+
+SOLD Dataset: Demonstrated high structural integrity with zero 100% matching mirror fields.
+
+LISTING Dataset: Exhibited a consistent Suffix Mirroring (.1) pattern, with 11 pairs of fields identified as 100% redundant.
+
+   b. Redundancy Inventory
+To optimize the schema, we retained the original fields and flagged the following .1 suffixed columns for pruning:
+
+Core Transaction KPIs:
+
+LivingArea (vs LivingArea.1)
+
+ListPrice (vs ListPrice.1)
+
+DaysOnMarket (vs DaysOnMarket.1)
+
+CloseDate (vs CloseDate.1)
+
+Geographic & Location Data:
+
+Latitude (vs Latitude.1)
+
+Longitude (vs Longitude.1)
+
+UnparsedAddress (vs UnparsedAddress.1)
+
+PropertyType (vs PropertyType.1)
+
+Personnel & Office Metadata:
+
+ListAgentFirstName (vs ListAgentFirstName.1)
+
+ListAgentLastName (vs ListAgentLastName.1)
+
+BuyerOfficeName (vs BuyerOfficeName.1)
+
+   c. Technical Decision & Implementation
+
+Strategy Selection: Strategic Selection (Drop Mirrors). Since the redundant columns provided no incremental information (no complementary null values), complex merging logic was rejected in favor of a clean prune.
+
+Execution: The logic_cleaning.py pipeline automatically identifies and drops all columns ending in .1 using regex pattern matching.
+
+Impact: This reduction decreased the field count by approximately 13%, significantly lowering memory overhead and eliminating dimension ambiguity during downstream Tableau visualization.
+
+
+
+
