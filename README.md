@@ -12,7 +12,28 @@ Data Aggregation: We will merge monthly CSV files from January 2024 to March 202
 
 Sold Dataset: Processes closed sales records; the key metric is ClosePrice. Listing Dataset: Processes listing records; the key metrics are ListPrice and StandardStatus. 
 
-**Phase 2:**
+**Phase 2:** Data Engineering & Scalability Audit
+
+In this phase, we conducted a rigorous pre-cleansing audit and optimized the data architecture to ensure the pipeline can handle over 1.2M+ transaction records without memory exhaustion.
+
+1.Memory & Storage Optimization
+
+By implementing Schema Pre-definition (converting high-cardinality strings to Categorical and mapping flags to Boolean), we achieved significant performance gains:
+| Dataset|Initial Memory|	Optimized Memory|	Reduction (%)|	Impact
+| :--- | :---: | ---: |:---: | ---: |
+|SOLD	|1578.45 MB|1290.74 MB|	18.2%	Enabled smooth local processing|
+|LISTING|2106.82 MB|	1773.71 MB|	15.8%	Reduced I/O overhead|
+
+2. Statistical Variance & Feature Pruning
+Our Skewness Audit identified several "Zero Variance" columns. These fields were pruned to reduce data noise and focus analytical resources on high-variance drivers
+| Pruning Category   | Target Fields                                              | Reasoning                                                                 |
+|--------------------|-----------------------------------------------------------|---------------------------------------------------------------------------|
+| Universal Constants | FireplaceYN, NewConstructionYN                            | 100% 'False' across 1.2M+ rows; zero analytical value.                   |
+| Dataset Specific    | MlsStatus, OriginatingSystemName, ViewYN                  | Constant values (e.g., 'Closed', 'CRMLS') in sub-datasets.               |
+| Mirror Redundancy   | LivingArea.1, ListPrice.1, Latitude.1, etc.               | 100% data overlap with original fields via `.equals()` validation.       |
+| Null Disposal       | ElementarySchoolDistrict, CoveredSpaces                   | 100% missing values; identified as "Ghost Fields".                       |
+
+**Phase 3:**
 
 Prior to data cleansing, we conducted a comprehensive audit of the 84 source fields to ensure analytical integrity and optimize pipeline performance.
 
