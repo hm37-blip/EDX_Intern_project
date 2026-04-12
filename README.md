@@ -20,14 +20,14 @@ In this phase, we conducted a rigorous pre-cleansing audit and optimized the dat
 
 By implementing Schema Pre-definition (converting high-cardinality strings to Categorical and mapping flags to Boolean), we achieved significant performance gains:
 | Dataset|Initial Memory|	Optimized Memory|	Reduction (%)|	Impact
-| :--- | :---: | ---: |:---: | ---: |
+| :--- | :---: | ---: |---: | ---: |
 |SOLD	|1578.45 MB|1290.74 MB|	18.2%	Enabled smooth local processing|
 |LISTING|2106.82 MB|	1773.71 MB|	15.8%	Reduced I/O overhead|
 
 2. Statistical Variance & Feature Pruning
 Our Skewness Audit identified several "Zero Variance" columns. These fields were pruned to reduce data noise and focus analytical resources on high-variance drivers
 | Pruning Category   | Target Fields                                              | Reasoning                                                                 |
-|--------------------|-----------------------------------------------------------|---------------------------------------------------------------------------|
+| :--- | :---: | ---: |
 | Universal Constants | FireplaceYN, NewConstructionYN                            | 100% 'False' across 1.2M+ rows; zero analytical value.                   |
 | Dataset Specific    | MlsStatus, OriginatingSystemName, ViewYN                  | Constant values (e.g., 'Closed', 'CRMLS') in sub-datasets.               |
 | Mirror Redundancy   | LivingArea.1, ListPrice.1, Latitude.1, etc.               | 100% data overlap with original fields via `.equals()` validation.       |
