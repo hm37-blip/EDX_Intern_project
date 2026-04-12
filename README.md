@@ -26,6 +26,7 @@ By implementing Schema Pre-definition (converting high-cardinality strings to Ca
 
 2. Statistical Variance & Feature Pruning
 Our Skewness Audit identified several "Zero Variance" columns. These fields were pruned to reduce data noise and focus analytical resources on high-variance drivers:
+
 | DPruning Category|Target Fields|	Reasoning|	
 | --- | --- | --- |
 |Universal Constants	|FireplaceYN, NewConstructionYN|100% 'False' across 1.2M+ rows; zero analytical value. |
