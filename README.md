@@ -41,52 +41,52 @@ Conversely, we verified the integrity of core metrics required for market analys
 4. Redundancy & Conflict Resolution
 During the data auditing phase, we performed a comprehensive Column-to-Column Collision Test on the 84 source fields to address systematic mirroring issues arising from the API export process.
 
-   a. Audit Discovery & Differential Analysis
-Using the Python .equals() algorithm for row-by-row validation, we identified a significant structural divergence between the two master tables:
+      a. Audit Discovery & Differential Analysis
+         Using the Python .equals() algorithm for row-by-row validation, we identified a significant structural divergence between the two master tables:
+         
+         SOLD Dataset: Demonstrated high structural integrity with zero 100% matching mirror fields.
+         
+         LISTING Dataset: Exhibited a consistent Suffix Mirroring (.1) pattern, with 11 pairs of fields identified as 100% redundant.
 
-SOLD Dataset: Demonstrated high structural integrity with zero 100% matching mirror fields.
-
-LISTING Dataset: Exhibited a consistent Suffix Mirroring (.1) pattern, with 11 pairs of fields identified as 100% redundant.
-
-   b. Redundancy Inventory
-To optimize the schema, we retained the original fields and flagged the following .1 suffixed columns for pruning:
-
-Core Transaction KPIs:
-
-LivingArea (vs LivingArea.1)
-
-ListPrice (vs ListPrice.1)
-
-DaysOnMarket (vs DaysOnMarket.1)
-
-CloseDate (vs CloseDate.1)
-
-Geographic & Location Data:
-
-Latitude (vs Latitude.1)
-
-Longitude (vs Longitude.1)
-
-UnparsedAddress (vs UnparsedAddress.1)
-
-PropertyType (vs PropertyType.1)
-
-Personnel & Office Metadata:
-
-ListAgentFirstName (vs ListAgentFirstName.1)
-
-ListAgentLastName (vs ListAgentLastName.1)
-
-BuyerOfficeName (vs BuyerOfficeName.1)
-
-   c. Technical Decision & Implementation
-
-Strategy Selection: Strategic Selection (Drop Mirrors). Since the redundant columns provided no incremental information (no complementary null values), complex merging logic was rejected in favor of a clean prune.
-
-Execution: The logic_cleaning.py pipeline automatically identifies and drops all columns ending in .1 using regex pattern matching.
-
-Impact: This reduction decreased the field count by approximately 13%, significantly lowering memory overhead and eliminating dimension ambiguity during downstream Tableau visualization.
-
-
-
-
+      b. Redundancy Inventory
+         To optimize the schema, we retained the original fields and flagged the following .1 suffixed columns for pruning:
+         
+         Core Transaction KPIs:
+         
+         LivingArea (vs LivingArea.1)
+         
+         ListPrice (vs ListPrice.1)
+         
+         DaysOnMarket (vs DaysOnMarket.1)
+         
+         CloseDate (vs CloseDate.1)
+         
+         Geographic & Location Data:
+         
+         Latitude (vs Latitude.1)
+         
+         Longitude (vs Longitude.1)
+         
+         UnparsedAddress (vs UnparsedAddress.1)
+         
+         PropertyType (vs PropertyType.1)
+         
+         Personnel & Office Metadata:
+         
+         ListAgentFirstName (vs ListAgentFirstName.1)
+         
+         ListAgentLastName (vs ListAgentLastName.1)
+         
+         BuyerOfficeName (vs BuyerOfficeName.1)
+         
+      c. Technical Decision & Implementation
+         
+         Strategy Selection: Drop Mirrors. Since the redundant columns provided no incremental information (no complementary null values), complex merging logic was rejected in favor of a clean prune.
+         
+         Execution: The logic_cleaning.py pipeline automatically identifies and drops all columns ending in .1 using regex pattern matching.
+         
+         Impact: This reduction decreased the field count by approximately 13%, significantly lowering memory overhead and eliminating dimension ambiguity during downstream Tableau visualization.
+         
+         
+         
+         
