@@ -1,0 +1,32 @@
+import pandas as pd
+
+path_sold = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Sold_Data_Consolidated.csv'
+path_listing = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Listing_Data_Consolidated.csv'
+
+df_sold = pd.read_csv(path_sold, low_memory=False, encoding='latin1')
+df_listing = pd.read_csv(path_listing, low_memory=False, encoding='latin1')
+
+def advanced_column_audit(df, dataset_name):
+    print(f"\n{'='*20} {dataset_name} extra value audit {'='*20}")
+    
+    # find col with .1 
+    mirror_cols = [col for col in df.columns if col.endswith('.1')]
+    
+    redundant_list = []
+    for m_col in mirror_cols:
+        original_col = m_col.replace('.1', '')
+        if original_col in df.columns:
+        
+            is_equal = df[original_col].equals(df[m_col])
+            if is_equal:
+                redundant_list.append(m_col)
+                print(f"comfirm 100% mirrow: {original_col} <==> {m_col}")
+            else:
+                print(f"⚠️ warning: {m_col} is different than original data")
+    
+    print(f"\n should prun in  {dataset_name} mirrow colume list: \n{redundant_list}")
+    return redundant_list
+
+#pruning
+drop_sold_mirrors = advanced_column_audit(df_sold, "SOLD")
+drop_listing_mirrors = advanced_column_audit(df_listing, "LISTING")
