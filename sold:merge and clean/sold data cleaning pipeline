@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+
+path_sold = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Sold_Data_Consolidated.csv'
+
+def run_sold_pipeline():
+    print(f"\n{'='*20} STARTING SOLD DATA PIPELINE {'='*20}")
+
+    df = pd.read_csv(path_sold, low_memory=False, encoding='latin1')
+    initial_mem = df.memory_usage(deep=True).sum() / (1024**2)
+    
+    df = df[df['PropertyType'] == 'Residential'].copy()
+    
+    # 3. 内存优化 (Schema Definition)
+    dtype_map = {
+        'City': 'category', 'CountyOrParish': 'category', 'MlsStatus': 'category',
+        'PropertyType': 'category', 'PostalCode': 'str', 'ListingKey': 'str'
+    }
+    for col, dtype in dtype_map.items():
+        if col in df.columns:
+            df[col] = df[col].astype(dtype)
+            
+
+    yn_cols = ['ViewYN', 'WaterfrontYN', 'PoolPrivateYN', 'FireplaceYN', 'NewConstructionYN']
+    for col in yn_cols:
+        if col in df.columns:
+            df[col] = df[col].map({'Y': True, 'N': False, '1': True, '0': False}).fillna(False).astype(bool)
+
+    black_list = [
+        'FireplacesTotal', 'AboveGradeFinishedArea', 'ElementarySchoolDistrict', 
+        'MiddleOrJuniorSchoolDistrict', 'PropertyType.1', 'DaysOnMarket.1', 
+        'LivingArea.1', 'ListPrice.1', 'CloseDate.1', 'OriginatingSystemName'
+    ]
+    df.drop(columns=black_list, inplace=True, errors='ignore')
+
+    q1, q3 = df['ClosePrice'].quantile(0.25), df['ClosePrice'].quantile(0.75)
+    iqr = q3 - q1
+    df_cleaned = df[(df['ClosePrice'] >= q1 - 1.5 * iqr) & (df['ClosePrice'] <= q3 + 1.5 * iqr)].copy()
+
+    final_mem = df_cleaned.memory_usage(deep=True).sum() / (1024**2)
+
+    print(f"memory change: {initial_mem:.2f}MB -> {final_mem:.2f}MB")
+    print(f"final record: {len(df_cleaned)} 条")
+    
+    df_cleaned.to_csv('C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Cleaned_Sold_Data.csv', index=False)
+    return df_cleaned
+
+df_sold_final = run_sold_pipeline()
