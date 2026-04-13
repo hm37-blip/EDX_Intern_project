@@ -1,0 +1,16 @@
+df_sold = pd.read_csv('C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Sold_Data_Consolidated.csv', low_memory=False, encoding='latin1')
+df_listing = pd.read_csv('C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Listing_Data_Consolidated.csv', low_memory=False, encoding='latin1')
+
+def get_empty_columns(df, name):
+    missing_series = df.isnull().mean()
+    empty_cols = missing_series[missing_series == 1.0].index.tolist()
+    
+    print(f"\n--- {name} data set colum with 100% missing item ({len(empty_cols)}个) ---")
+    print(empty_cols)
+    return empty_cols
+
+empty_sold = get_empty_columns(df_sold, "SOLD")
+empty_listing = get_empty_columns(df_listing, "LISTING")
+
+common_empty = list(set(empty_sold) & set(empty_listing))
+print(f"\ncommon 100% missing value: \n{common_empty}")
