@@ -1,0 +1,36 @@
+# listing data pipeline
+import pandas as pd
+
+path_listing = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Final_Listing_Data_Consolidated.csv'
+
+def run_listing_pipeline():
+    print(f"\n{'='*20} STARTING LISTING DATA PIPELINE {'='*20}")
+    
+    df = pd.read_csv(path_listing, low_memory=False, encoding='latin1')
+    initial_mem = df.memory_usage(deep=True).sum() / (1024**2)
+
+    # 1. 过滤 & 优化
+    df = df[df['PropertyType'] == 'Residential'].copy()
+    
+    # 2. 内存转换
+    cat_cols = ['City', 'CountyOrParish', 'PropertyType', 'MlsStatus']
+    for col in cat_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('category')
+
+    # 3. 剔除 LISTING 特有的镜像冗余
+    listing_black_list = [
+        'PropertyType.1', 'ListAgentFirstName.1', 'DaysOnMarket.1', 
+        'LivingArea.1', 'Longitude.1', 'Latitude.1', 'ListPrice.1', 
+        'ListAgentLastName.1', 'CloseDate.1', 'BuyerOfficeName.1', 'UnparsedAddress.1'
+    ]
+    df.drop(columns=listing_black_list, inplace=True, errors='ignore')
+
+    final_mem = df.memory_usage(deep=True).sum() / (1024**2)
+    print(f"✅ LISTING cleaning finish！")
+    print(f"📉 memory change: {initial_mem:.2f}MB -> {final_mem:.2f}MB")
+    
+    df.to_csv('C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Cleaned_Listing_Data.csv', index=False)
+    return df
+
+df_listing_final = run_listing_pipeline()
