@@ -9,16 +9,13 @@ def run_listing_pipeline():
     df = pd.read_csv(path_listing, low_memory=False, encoding='latin1')
     initial_mem = df.memory_usage(deep=True).sum() / (1024**2)
 
-    # 1. 过滤 & 优化
     df = df[df['PropertyType'] == 'Residential'].copy()
     
-    # 2. 内存转换
     cat_cols = ['City', 'CountyOrParish', 'PropertyType', 'MlsStatus']
     for col in cat_cols:
         if col in df.columns:
             df[col] = df[col].astype('category')
 
-    # 3. 剔除 LISTING 特有的镜像冗余
     listing_black_list = [
         'PropertyType.1', 'ListAgentFirstName.1', 'DaysOnMarket.1', 
         'LivingArea.1', 'Longitude.1', 'Latitude.1', 'ListPrice.1', 
