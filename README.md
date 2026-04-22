@@ -1,8 +1,11 @@
 # IDX Real Estate Market Analysis: Data Pipeline & Exploration
 This repository contains an end-to-end analysis workflow for CRMLS (California Regional MLS) data. The project aims to clean raw transaction data using Python and ultimately create an intelligent real estate market dashboard in Tableau. 
 ## Development Environment and Tools
+
 Language: Python 3.x
+
 Libraries: Pandas (data processing), Glob (file handling), NumPy (numerical computing)
+
 Visualization: Tableau Desktop Public Edition 
 
 ### Data Pipeline Phase (Weeks 1–4)
@@ -112,8 +115,8 @@ During the data auditing phase, we performed a comprehensive Column-to-Column Co
          Impact: This reduction decreased the field count by approximately 13%, significantly lowering memory overhead and eliminating dimension ambiguity during downstream Tableau visualization.
          
 
-   ### Data Engineering, Scalability & Audi Phase (Week 5)
-   to-do list: Data Partitioning, Schema Validation, Feature Engineering at Scale)
+### Data Engineering, Scalability & Audi Phase (Week 5)
+to-do list: Data Partitioning, Schema Validation, Feature Engineering at Scale)
 
 1. Data Partitioning：Hive-style geospatially partitioned storage
 
@@ -132,7 +135,7 @@ After migrating to the partitioned Parquet architecture, I conducted a performan
 
 The implementation of Partition Pruning effectively decoupled storage from compute, allowing for high-speed localized market analysis without taxing system memory. 
    
-2.Data Quality Audit & Findings
+2. Data Quality Audit & Findings
 
 Before formally persisting the data in Parquet format, I built a four-dimensional audit framework (Schema, Integrity, Uniqueness, Logic). By applying this “security gate,” I successfully identified and intercepted anomalous data that had remained in the data cleansing pipeline:
 
