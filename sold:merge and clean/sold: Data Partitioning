@@ -1,0 +1,24 @@
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+import os
+
+path_cleaned = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Cleaned_Sold_Data.csv'
+df = pd.read_csv(path_cleaned, low_memory=False)
+
+
+output_root = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Sold_Data_Partitioned'
+
+def export_to_partitioned_parquet(df, root_path, partition_col='City'):
+
+    table = pa.Table.from_pandas(df)
+    
+    pq.write_to_dataset(
+        table,
+        root_path=root_path,
+        partition_cols=[partition_col],
+        use_deprecated_int96_timestamps=True, # 增强兼容性
+        compression='snappy' # 兼顾压缩率和读取速度的平衡点
+    )
+    
+export_to_partitioned_parquet(df, output_root)
