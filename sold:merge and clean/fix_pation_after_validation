@@ -1,0 +1,49 @@
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+import shutil
+import os
+
+path_cleaned_csv = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Cleaned_Sold_Data.csv'
+parquet_root = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Sold_Data_Partitioned'
+quarantine_path = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Quarantine_Audit_Report.csv'
+
+def fix_and_rebuild_parquet():
+
+    df = pd.read_csv(path_cleaned_csv, low_memory=False)
+    initial_count = len(df)
+
+    mask_dirty = (
+        df['City'].isnull() | 
+        df['ListingId'].duplicated(keep='first') | 
+        (df['ClosePrice'] <= 0) | 
+        (df['LivingArea'] < 100)
+    )
+
+    df_quarantine = df[mask_dirty].copy()
+    df_clean = df[~mask_dirty].copy()
+
+  
+    if not df_quarantine.empty:
+        df_quarantine.to_csv(quarantine_path, index=False)
+        print(f"⚠️ captiure {len(df_quarantine)} bad data。")
+
+    if os.path.exists(parquet_root):
+        print(f"delete broken grage")
+        shutil.rmtree(parquet_root)
+        print("delete old grage")
+
+    print(f"niolding new partition (number: {len(df_clean)})...")
+    table = pa.Table.from_pandas(df_clean)
+    pq.write_to_dataset(
+        table,
+        root_path=parquet_root,
+        partition_cols=['City'],
+        use_deprecated_int96_timestamps=True,
+        compression='snappy'
+    )
+
+    print(f"produce：{len(df_clean)} validated datas")
+
+
+fix_and_rebuild_parquet()
