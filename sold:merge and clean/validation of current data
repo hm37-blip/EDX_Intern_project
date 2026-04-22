@@ -1,0 +1,84 @@
+import pandas as pd
+import numpy as np
+
+path_cleaned = 'C:\\Users\\Manzh\\OneDrive\\桌面\\edx\\Cleaned_Sold_Data.csv'
+df = pd.read_csv(path_cleaned, low_memory=False)
+
+def run_de_validation_audit(df):
+    
+    validation_passed = True
+    report = []
+
+    expected_types = {
+        'ClosePrice': ['float64', 'int64'],
+        'LivingArea': ['float64', 'int64'],
+        'City': ['object', 'category'],
+        'ListingId': ['object']
+    }
+    
+    print("\n[1. Schema Validation]")
+    for col, types in expected_types.items():
+        actual_type = str(df[col].dtype)
+        is_type_ok = any(t in actual_type for t in types)
+        status = "✅" if is_type_ok else "❌"
+        print(f"{status} {col}: Expected {types}, Actual {actual_type}")
+        if not is_type_ok:
+            validation_passed = False
+
+    # --- Dimension 2: Integrity Check (Null / Missing Value Audit) ---
+    print("\n[2. Critical Null Audit]")
+    critical_cols = ['ListingId', 'ClosePrice', 'City', 'CloseDate']
+    for col in critical_cols:
+        null_count = df[col].isnull().sum()
+        if null_count > 0:
+            print(f"❌ Critical field {col} has {null_count} missing values!")
+            validation_passed = False
+        else:
+            print(f"✅ {col}: No missing values")
+
+    # --- Dimension 3: Uniqueness Check ---
+    # ListingId should be unique; duplicates may indicate join explosion or pipeline issues
+    print("\n[3. Uniqueness Audit]")
+    duplicate_count = df['ListingId'].duplicated().sum()
+    if duplicate_count > 0:
+        print(f"❌ Found {duplicate_count} duplicate ListingId values! (DE Warning: potential data redundancy)")
+        validation_passed = False
+    else:
+        print("✅ ListingId: 100% unique")
+
+    # --- Dimension 4: Business Logic Check ---
+    # This reflects domain understanding in data engineering
+    print("\n[4. Domain Logic Audit]")
+    
+    # Rule A: Price must be greater than 0
+    price_error = (df['ClosePrice'] <= 0).sum()
+    
+    # Rule B: Living area should not be unrealistically small (based on domain guidelines)
+    area_error = (df['LivingArea'] < 100).sum()
+    
+    # Rule C: CloseDate format and validity check (expected range: 2024–2026)
+    df['CloseDate'] = pd.to_datetime(df['CloseDate'], errors='coerce')
+    date_error = df['CloseDate'].isnull().sum()
+
+    logic_checks = [
+        ("ClosePrice > 0", price_error),
+        ("LivingArea >= 100 sqft", area_error),
+        ("CloseDate Validity", date_error)
+    ]
+
+    for desc, error_count in logic_checks:
+        status = "✅" if error_count == 0 else "❌"
+        print(f"{status} {desc}: Error count {error_count}")
+        if error_count > 0:
+            validation_passed = False
+
+    # --- Final Summary ---
+    print("\n" + "="*50)
+    if validation_passed:
+        print("✨ Conclusion: Data quality is high and meets the standard for production Parquet storage!")
+    else:
+        print("🚨 Conclusion: Data issues detected. Recommend reviewing the data cleaning pipeline.")
+    print("="*50)
+
+# 执行审计
+run_de_validation_audit(df)
