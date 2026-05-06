@@ -175,5 +175,17 @@ c. Key Highlights
 (b) All intercepted data is exported to Quarantine_Audit_Report.csv, providing an audit trail for subsequent data lineage tracking.
 
 (c) The refactored Apache Parquet partitioned database maintains 100% data purity while achieving ultra-fast geographic dimension lookups in 0.29 seconds.
-  
+
+
+### Infrastructure Validation & KPI Extraction (Week 6-7)  
+
+1.Disaster Recovery & Storage Integrity Audit
+
+Because the project was suspended for 12 days in the local development environment, severe metadata corruption occurred in the storage layer upon restart.
+
+a. Incident: When attempting to load `Sold_Data_Partitioned`, the system throws an `OSError: Couldn't deserialize thrift`, and is unable to read the existing Parquet partitions.
+b. Diagnostic: (1) I verified that the storage paths matched using PowerShell commands, thereby ruling out the “FileNotFound” error.
+               (2) It was confirmed that the corruption occurred in the Thrift header of the Parquet file; it is suspected to be silent corruption caused by a cloud storage synchronization conflict or a write interruption.
+               (3) Remediation: We used `shutil.rmtree` to force-delete the corrupted partition directory and leveraged the validation pipeline developed in Week 5 to trigger a 100% full partition write from the original CSV (Source of Truth).
+               (4) Lessons Learned (Engineering Insights): When managing distributed or partitioned data, backing up the “Source of Truth” is critical.
          
