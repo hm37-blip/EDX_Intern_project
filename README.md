@@ -188,4 +188,42 @@ b. Diagnostic: (1) I verified that the storage paths matched using PowerShell co
                (2) It was confirmed that the corruption occurred in the Thrift header of the Parquet file; it is suspected to be silent corruption caused by a cloud storage synchronization conflict or a write interruption.
                (3) Remediation: We used `shutil.rmtree` to force-delete the corrupted partition directory and leveraged the validation pipeline developed in Week 5 to trigger a 100% full partition write from the original CSV (Source of Truth).
                (4) Lessons Learned (Engineering Insights): When managing distributed or partitioned data, backing up the “Source of Truth” is critical.
+
+2. KPI Extraction
+
+After resolving the issue of corrupted underlying storage and completing a 100% data reconstruction, this project entered the data assetization phase. By building a cross-district aggregation pipeline, we performed in-depth indicator extraction for 564 key cities in California.
+
+a. Engineering Implementation
+
+(1) To address the instability of the local synchronization environment, we have implemented an integrated “clear-reconstruct-aggregate” pipeline to ensure that computational logic is based on 100% clean in-memory objects.
+(2) A hard filtering threshold of `Sold_Count >= 30` was introduced during aggregation, effectively removing outliers with excessively low transaction volumes and ensuring the KPI’s business relevance.
+(3) Calculate the price per square foot for each transaction and determine the median price for the area, using this as the key indicator for measuring land prices.
+(4) Quantify the supply-demand imbalance in the region using the ratio of sales to listings.
+
+b. Key Business Insights
+
+Based on real-time aggregation of over 900,000 records, we identified several “outliers” in the California market
+
+California Price Per Square Foot (PPSF) cap:
+| City               | Median PPSF     | Median Sold Price | Sample Size (Sold) |
+|--------------------|------------------|-------------------|--------------------|
+| Corona Del Mar     | $1,599 / sqft    | $2,140,000        | 34                 |
+| Manhattan Beach    | $1,270 / sqft    | $1,925,000        | 173                |
+| Laguna Beach       | $1,243 / sqft    | $1,850,000        | 217                |
+
+Market Heat (Absorption Rate) Rankings:
+
+| Area              | Absorption Rate | Market Insight                                                                 |
+|-------------------|-----------------|---------------------------------------------------------------------------------|
+| Sun City          | 125.5%          | Extremely strong inventory absorption; sales volume exceeds current listings. |
+| Lakeview Terrace  | 110.0%          | Highly constrained supply and demand; intense buyer competition.              |
+
+Overall conclusion: The average absorption rate in the California market is 68.7%, indicating that the market as a whole remains very active, with coastal cities (such as Corona Del Mar) commanding a significant premium.
+
+c. Next Steps
+| Category              | Description                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| BI Visualization      | Import the generated California_Market_KPIs.csv into Tableau.              |
+| Geospatial Mapping    | Use the City dimension to build a California housing price heatmap.        |
+| Trend Analysis        | Incorporate timestamps to forecast monthly price trends.                   |
          
