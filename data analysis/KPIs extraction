@@ -1,0 +1,55 @@
+import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
+import shutil
+import os
+import numpy as np
+
+path_sold_csv = r'C:\Users\Manzh\OneDrive\桌面\edx\Cleaned_Sold_Data.csv'
+path_list_csv = r'C:\Users\Manzh\OneDrive\桌面\edx\Cleaned_Listing_Data.csv'
+parquet_sold_root = r'C:\Users\Manzh\OneDrive\桌面\edx\Sold_Data_Partitioned'
+parquet_list_root = r'C:\Users\Manzh\OneDrive\桌面\edx\Listing_Data_Partitioned'
+output_kpi = r'C:\Users\Manzh\OneDrive\桌面\edx\California_Market_KPIs.csv'
+
+def force_rebuild_and_extract():
+
+    for path in [parquet_sold_root, parquet_list_root]:
+        if os.path.exists(path):
+            shutil.rmtree(path)
+            import time
+            time.sleep(1)
+
+    def process_to_parquet(csv_p, parq_p, name):
+        df = pd.read_csv(csv_p, low_memory=False)
+        df = df.dropna(subset=['City', 'ListingId'])
+        df = df[~df['ListingId'].duplicated()]
+
+        table = pa.Table.from_pandas(df)
+        pq.write_to_dataset(table, root_path=parq_p, partition_cols=['City'])
+        return df
+
+    df_sold_final = process_to_parquet(path_sold_csv, parquet_sold_root, "SOLD")
+    df_list_final = process_to_parquet(path_list_csv, parquet_list_root, "LISTING")
+-
+
+ #sold 
+    df_sold_final['PPSF'] = df_sold_final['ClosePrice'] / df_sold_final['LivingArea']
+    sold_kpis = df_sold_final.groupby('City').agg(
+        Sold_Count=('ClosePrice', 'count'),
+        Median_Price=('ClosePrice', 'median'),
+        Median_PPSF=('PPSF', 'median')
+    ).reset_index()
+#listing
+    list_kpis = df_list_final.groupby('City').agg(
+        Listing_Count=('ListPrice', 'count')
+    ).reset_index()
+
+    # combine
+    kpi_master = pd.merge(sold_kpis, list_kpis, on='City', how='outer')
+    kpi_master['Absorption_Rate'] = kpi_master['Sold_Count'] / kpi_master['Listing_Count']
+    
+    #filtering
+    kpi_master = kpi_master[kpi_master['Sold_Count'] >= 30].sort_values(by='Median_PPSF', ascending=False)
+    kpi_master.to_csv(output_kpi, index=False)
+   
+force_rebuild_and_extract()
