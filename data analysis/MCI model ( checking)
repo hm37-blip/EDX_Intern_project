@@ -1,0 +1,57 @@
+import pandas as pd
+import numpy as np
+import os
+
+
+INPUT_PATH = r'C:\Users\Manzh\OneDrive\桌面\edx\California_Market_KPIs.csv'
+OUTPUT_PATH = r'C:\Users\Manzh\OneDrive\桌面\edx\California_Market_Risk_Report.csv'
+
+def run_market_prediction_model():
+
+    if not os.path.exists(INPUT_PATH):
+        print(f"❌ 错误：无法在路径找到文件: {INPUT_PATH}")
+        return
+
+    df = pd.read_csv(INPUT_PATH)
+    print(f"📖 成功加载 {len(df)} 个城市的 KPI 数据。")
+
+    # 3. 特征工程：计算挂牌/成交比 (LS_Ratio)
+    # 逻辑：该比例越高，说明库存积压越严重，去化压力越大
+    df['LS_Ratio'] = df['Listing_Count'] / df['Sold_Count'].replace(0, np.nan)
+
+    # 4. 构建 MCI (Market Cooling Index) 评分逻辑
+    def calculate_mci(row):
+        score = 0
+        
+        if row['Absorption_Rate'] < 0.10: score += 40
+        elif row['Absorption_Rate'] < 0.20: score += 25
+        elif row['Absorption_Rate'] < 0.35: score += 10
+
+        if row['Median_PPSF'] > 1200: score += 30
+        elif row['Median_PPSF'] > 900: score += 20
+        elif row['Median_PPSF'] > 600: score += 10
+
+        if row['LS_Ratio'] > 8: score += 30
+        elif row['LS_Ratio'] > 5: score += 15
+        elif row['LS_Ratio'] > 3: score += 5
+        
+        return score
+
+    df['MCI_Score'] = df.apply(calculate_mci, axis=1)
+    
+    conditions = [
+        (df['MCI_Score'] >= 70),
+        (df['MCI_Score'] >= 40) & (df['MCI_Score'] < 70),
+        (df['MCI_Score'] < 40)
+    ]
+    choices = ['High Risk (Saturated)', 'Medium Risk (Cooling)', 'Stable']
+    df['Risk_Level'] = np.select(conditions, choices, default='Stable')
+
+    final_report = df.sort_values(by='MCI_Score', ascending=False)
+    final_report.to_csv(OUTPUT_PATH, index=False)
+
+    print("\n🚨 加州爆冷风险最高（MCI评分前5）的城市：")
+    print(final_report[['City', 'Median_PPSF', 'Absorption_Rate', 'MCI_Score', 'Risk_Level']].head(5))
+
+if __name__ == "__main__":
+    run_market_prediction_model()
