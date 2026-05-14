@@ -220,10 +220,38 @@ Market Heat (Absorption Rate) Rankings:
 
 Overall conclusion: The average absorption rate in the California market is 68.7%, indicating that the market as a whole remains very active, with coastal cities (such as Corona Del Mar) commanding a significant premium.
 
-c. Next Steps
-| Category              | Description                                                                 |
-|-----------------------|-----------------------------------------------------------------------------|
-| BI Visualization      | Import the generated California_Market_KPIs.csv into Tableau.              |
-| Geospatial Mapping    | Use the City dimension to build a California housing price heatmap.        |
-| Trend Analysis        | Incorporate timestamps to forecast monthly price trends.                   |
-         
+### Predictive Modeling - Market Cooling Inde (week 8)
+This week, the project formally established its core analytical objective: **to identify areas within the California real estate market that are at risk of a sudden downturn**. By quantifying supply-demand imbalances and price pressures, we aim to pinpoint market inflection points—those at the tipping point of growth and on the verge of entering a downturn.
+
+1. Phase 1: Experimental MCI Modeling
+As an initial step to guide our investigation, I developed the Market Cooling Index (MCI) v1.0. This model uses "Signal Convergence" to flag cities where current growth might be unsustainable.
+
+The MCI score is calculated using a weighted average of three critical dimensions:
+
+（1）Liquidity Exhaustion (40%): Measured by Absorption Rate. Areas with < 20% absorption are flagged for low buyer velocity.
+
+（2）Price Ceiling Pressure (30%): Measured by Median PPSF. Cities exceeding $1,000/sqft are entering the "affordability friction" zone.
+
+（3）Inventory Pressure (30%): Measured by the LS Ratio (Listings-to-Sold). A ratio > 5:1 indicates a significant buildup of unsold inventory.
+
+Preliminary Results：The script identified Los Altos (Score: 100) and Corona Del Mar (Score: 100) as the highest risk areas, characterized by extreme price points coupled with near-stagnant liquidity (<10% absorption).
+
+2. Phase 2: Critical Reflection & Identified Limitations
+
+It is crucial to note that this MCI v1.0 serves as a directional tool rather than an absolute prediction. We have identified the following limitations that will be addressed in future iterations:
+
+Static Snapshot: The current model uses cross-sectional data and cannot distinguish between "seasonal slowing" and "structural decline."
+
+Luxury Market Resilience: High-end markets (e.g., Malibu) often exhibit "low velocity but high price stability," which might skew risk scores.
+
+Heuristic Weighting: The 4:3:3 weighting is based on industry logic but lacks empirical confirmation from historical crash data.
+
+3. Future Roadmap: The Path to Validation
+
+To transform this into a robust predictive engine, the project will move toward an Evidence-Based Loop:
+
+(1) Historical Ground Truth: We will query the Parquet Lake for historical "market cooling" events (e.g., cities that experienced 3+ consecutive months of price drops) to serve as a training set.
+
+(2) ML-Assisted Weighting: Implement a Logistic Regression or Random Forest model to determine the actual statistical weight each factor (Liquidity vs. Price) contributes to a subsequent price drop.
+
+(3) Macro-Factor Integration: Incorporate external variables such as Federal Interest Rates, regional unemployment data, and net migration flows to strengthen the predictive power.
