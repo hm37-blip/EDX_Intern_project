@@ -285,4 +285,4 @@ To transition from heuristic rules  to an empirical, data-driven system without 
 * **Robust Feature Engineering**: 
   * **Rolling Window Aggregates**: Transformed static snapshot metrics into 3-month velocity indicators (`Volume_Trend_3M`, `Price_Volatility_3M`).
   * **Cyclical Seasonality Encoding**: Modeled the "Midsummer Freeze Paradox" uncovered in our EDA by encoding calendar months into cyclical features, allowing the model to organically adjust risk thresholds for August and September.
-* **Strategic TPM Value**: This evaluation loop replaces our initial heuristic 4:3:3 weighting matrix with statistical **Feature Importance Weights**, driving an empirical understanding of whether volume contraction or price friction serves as the leading indicator for localized real estate satiation.
+* **Strategic Value**: This evaluation loop replaces our initial heuristic 4:3:3 weighting matrix with statistical **Feature Importance Weights**, driving an empirical understanding of whether volume contraction or price friction serves as the leading indicator for localized real estate satiation.
