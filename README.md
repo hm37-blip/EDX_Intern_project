@@ -276,3 +276,13 @@ To transform this into a robust predictive engine, the project will move toward 
 (2) ML-Assisted Weighting: Implement a Logistic Regression or Random Forest model to determine the actual statistical weight each factor (Liquidity vs. Price) contributes to a subsequent price drop.
 
 (3) Macro-Factor Integration: Incorporate external variables such as Federal Interest Rates, regional unemployment data, and net migration flows to strengthen the predictive power.
+
+### 🤖 Phase 5: Supervised Machine Learning Pipeline design
+
+To transition from heuristic rules  to an empirical, data-driven system without relying on volatile external parameters, I deployed a **Binary Risk Classifier (LightGBM/XGBoost)** as our core predictive engine.
+
+* **Problem Formulation**: Defined as a supervised binary classification task. The model consumes rolling $N$-month internal market signals to predict the probability of a market correction (`Is_Cooling_Event = 1`) in month $T+1$.
+* **Robust Feature Engineering**: 
+  * **Rolling Window Aggregates**: Transformed static snapshot metrics into 3-month velocity indicators (`Volume_Trend_3M`, `Price_Volatility_3M`).
+  * **Cyclical Seasonality Encoding**: Modeled the "Midsummer Freeze Paradox" uncovered in our EDA by encoding calendar months into cyclical features, allowing the model to organically adjust risk thresholds for August and September.
+* **Strategic TPM Value**: This evaluation loop replaces our initial heuristic 4:3:3 weighting matrix with statistical **Feature Importance Weights**, driving an empirical understanding of whether volume contraction or price friction serves as the leading indicator for localized real estate satiation.
