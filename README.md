@@ -244,7 +244,7 @@ Static Snapshot: The current model uses cross-sectional data and cannot distingu
 
 Luxury Market Resilience: High-end markets (e.g., Malibu) often exhibit "low velocity but high price stability," which might skew risk scores.
 
-### 📊 Week 8: Exploratory Data Analysis (EDA) on Time-Series Metrics
+### Week 8: Exploratory Data Analysis (EDA) on Time-Series Metrics
 
 Following the deployment of `analyze_historical_trends.py`, a comprehensive historical scan was executed across **16,000+ Month-over-Month (MoM) city registries**. The empirical findings have provided definitive signals that reshape our predictive model assumptions.
 
