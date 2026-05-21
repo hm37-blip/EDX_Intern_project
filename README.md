@@ -263,7 +263,7 @@ Insight: The near-identical split implies that "Market Cooling" cannot be treate
 
 #### **3. High-Risk Vulnerability in Mid-Tier Hubs (City Analysis)**
 * **Data Core**: Aggressive Tier-1 economic hubs like **Los Angeles (8 events, Median PPSF: \$690)** and **Oakland (8 events, Median PPSF: \$564)** emerged as chronic cooling leaders alongside premium suburbs like **Danville (9 events, Median PPSF: \$766)**.
-* **TPM Insight**: This establishes the **"Mid-Tier Vulnerability Hypothesis."** While ultra-luxury sellers (\$1,500+/sqft) can afford to hold inventory and low-end markets have rigid organic demand, the \$500-\$700/sqft segment represents mid-class buyers who are highly reactive to macro rate hikes, causing frequent, cyclical localized cooling shocks.
+* **Insight**: This establishes the **"Mid-Tier Vulnerability Hypothesis."** While ultra-luxury sellers (\$1,500+/sqft) can afford to hold inventory and low-end markets have rigid organic demand, the \$500-\$700/sqft segment represents mid-class buyers who are highly reactive to macro rate hikes, causing frequent, cyclical localized cooling shocks.
 
 Heuristic Weighting: The 4:3:3 weighting is based on industry logic but lacks empirical confirmation from historical crash data.
 
